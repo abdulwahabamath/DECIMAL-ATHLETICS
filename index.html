@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Athletics: Championship Track</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Montserrat for high-energy tech-sport look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for high-fidelity icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #1e1e2f 0%, #0c0c14 100%);
+            color: #f3f4f6;
+        }
+        .font-sporty {
+            font-family: 'Montserrat', sans-serif;
+        }
+        /* Custom neon colors matching image_60eb1f.png */
+        .color-blue { color: #00E5FF; }
+        .bg-blue-neon { background-color: #00E5FF; }
+        .border-blue-neon { border-color: #00E5FF; }
+
+        .color-teal { color: #00ECC6; }
+        .bg-teal-neon { background-color: #00ECC6; }
+        .border-teal-neon { border-color: #00ECC6; }
+
+        .color-green { color: #A4E031; }
+        .bg-green-neon { background-color: #A4E031; }
+        .border-green-neon { border-color: #A4E031; }
+
+        .color-coral { color: #FF6B4A; }
+        .bg-coral-neon { background-color: #FF6B4A; }
+        .border-coral-neon { border-color: #FF6B4A; }
+
+        /* Glowing and glassmorphism styling */
+        .glass-card {
+            background: rgba(30, 30, 45, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glow-orange {
+            box-shadow: 0 0 15px rgba(255, 107, 74, 0.4);
+        }
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+
+        /* Running animations */
+        @keyframes runner-jog {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-6px) scaleY(0.95); }
+        }
+        .animate-runner {
+            animation: runner-jog 0.5s infinite ease-in-out;
+        }
+        
+        /* Spark particles for combo celebration */
+        .spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: shoot 0.8s ease-out forwards;
+        }
+        @keyframes shoot {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* Falling confetti animation */
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            animation: confettiFall 4s linear infinite;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Header with audio control & score dashboard -->
+    <header class="border-b border-white/10 bg-[#0c0c14]/80 backdrop-blur-md sticky top-0 z-40 py-4 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3.5">
+                <div class="bg-coral-neon p-2.5 rounded-2xl text-white shadow-[0_0_15px_rgba(255,107,74,0.4)]">
+                    <i class="fa-solid fa-person-running text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-sporty text-xl md:text-2xl tracking-wider text-white">DECIMAL ATHLETICS</h1>
+                    <p class="text-xs text-coral-neon font-bold uppercase tracking-widest">Let's Check Your Progress!</p>
+                </div>
+            </div>
+            
+            <!-- Global Audio and Combo Badges -->
+            <div class="flex items-center space-x-4">
+                <button id="soundToggle" onclick="toggleSound()" class="bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center space-x-2">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-coral-neon"></i>
+                    <span>Sound: ON</span>
+                </button>
+                <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 rounded-xl text-sm font-extrabold flex items-center space-x-2 shadow-lg shadow-orange-500/20">
+                    <i class="fa-solid fa-fire text-white animate-bounce"></i>
+                    <span>STREAK: <span id="comboCounter">0</span>x</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Workspace -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- Track Visual: Stadium Progress Lane -->
+        <section class="glass-card rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-transparent to-emerald-500/5 pointer-events-none"></div>
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-coral-neon rounded-full animate-ping"></span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Ingrid's Championship Track</span>
+                </div>
+                <span class="text-xs font-black text-coral-neon font-sporty tracking-wider" id="distanceText">TARGET: 100m • REMAINING: 100m</span>
+            </div>
+            
+            <!-- Real visual race-lane track layout -->
+            <div class="relative w-full h-24 bg-[#151525] rounded-2xl border-2 border-white/10 overflow-hidden flex items-center shadow-inner">
+                <!-- Lane Stripes -->
+                <div class="absolute inset-x-0 top-1/3 h-0.5 border-t border-dashed border-white/10"></div>
+                <div class="absolute inset-x-0 top-2/3 h-0.5 border-t border-dashed border-white/10"></div>
+                
+                <!-- Start / Finish Visual Gates -->
+                <div class="absolute left-4 top-2 bottom-2 w-1.5 bg-red-500/50 rounded-full flex items-center justify-center">
+                    <span class="absolute -top-1 left-3 text-[9px] font-black text-red-400 tracking-wider">START</span>
+                </div>
+                <div class="absolute right-12 top-0 bottom-0 w-4 bg-white/10 flex flex-col justify-between">
+                    <div class="w-full h-2 bg-white"></div>
+                    <div class="w-full h-2 bg-black"></div>
+                    <div class="w-full h-2 bg-white"></div>
+                    <div class="w-full h-2 bg-black"></div>
+                    <div class="w-full h-2 bg-white"></div>
+                    <div class="w-full h-2 bg-black"></div>
+                </div>
+                <div class="absolute right-4 top-2 bottom-2 w-1.5 bg-emerald-500/50 rounded-full flex items-center justify-center">
+                    <span class="absolute -top-1 right-3 text-[9px] font-black text-emerald-400 tracking-wider">FINISH</span>
+                </div>
+                
+                <!-- Ingrid Avatar moving dynamically -->
+                <div id="runnerContainer" class="absolute transition-all duration-1000 ease-out flex flex-col items-center z-10" style="left: 5%;">
+                    <div class="bg-gradient-to-b from-[#ff8a65] to-coral-neon border-2 border-white/30 rounded-2xl p-2 shadow-[0_0_15px_rgba(255,107,74,0.5)] animate-runner">
+                        <!-- Custom high-quality Runner SVG -->
+                        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="5" r="2" />
+                            <path d="M8 14h4l3-6" />
+                            <path d="m17 21-3-4-2-3" />
+                            <path d="M12 14l-1 4-3 1" />
+                            <path d="M10 9l-2 3" />
+                        </svg>
+                    </div>
+                    <span class="text-[9px] font-black bg-coral-neon text-white px-2 py-0.5 rounded-full mt-1.5 shadow-lg tracking-wider uppercase">Ingrid</span>
+                </div>
+
+                <!-- Milestone Labels -->
+                <div class="absolute inset-x-0 bottom-1 flex justify-between px-12 text-[9px] font-black text-white/20 uppercase tracking-widest">
+                    <span>Q1</span>
+                    <span>Q2</span>
+                    <span>Q3</span>
+                    <span>Q4</span>
+                    <span>Q5</span>
+                    <span>Q6</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Deck -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Side Panel: Live Athlete Stats & Help Resources -->
+            <div class="flex flex-col gap-6 lg:col-span-1">
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex items-center space-x-2 text-coral-neon mb-4">
+                            <i class="fa-solid fa-medal text-xl"></i>
+                            <h3 class="font-sporty tracking-wider text-white text-md">ATHLETE GUIDE</h3>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed mb-4">
+                            Help <strong class="text-white">Ingrid</strong> dominate the 100m relay sprint championship! Solve the six core challenges referenced directly from your workbook assignment page.
+                        </p>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            Accumulate high-value <strong class="text-blue-neon">XP</strong>, maintain your answer streak, and cross the finish line to unlock the gold relay trophy!
+                        </p>
+                    </div>
+                    
+                    <!-- Stats Board -->
+                    <div class="mt-6 pt-6 border-t border-white/10 space-y-3.5">
+                        <div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Score</span>
+                            <span id="scoreText" class="text-xl font-black text-coral-neon font-sporty">0 XP</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lanes / Hearts</span>
+                            <div class="flex space-x-1.5" id="heartsContainer">
+                                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+                                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+                                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Accuracy</span>
+                            <span id="accuracyText" class="text-sm font-bold text-emerald-400 font-sporty">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Interactive Core Playground Panel -->
+            <div class="glass-card rounded-2xl p-6 lg:col-span-2 relative min-h-[460px] flex flex-col justify-between">
+                
+                <!-- Card Header -->
+                <div>
+                    <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5">
+                        <div class="flex items-center space-x-3">
+                            <span id="questionNumBadge" class="bg-coral-neon text-white font-sporty text-xs px-3.5 py-1.5 rounded-full shadow-lg font-black tracking-widest">Q1</span>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Workbook Reference: image_60eb1f.png</span>
+                        </div>
+                        <span class="text-xs font-extrabold text-blue-neon bg-blue-neon/10 border border-blue-neon/20 px-3 py-1 rounded-lg uppercase tracking-wider" id="questionDifficulty">Easy</span>
+                    </div>
+
+                    <!-- Dynamic Quiz Container -->
+                    <div id="questionContainer" class="transition-all duration-300">
+                        <!-- Content Injected via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Bottom Workspace Actions -->
+                <div class="border-t border-white/10 pt-4 mt-6">
+                    <!-- Responsive Feedback Overlay/Toast style inside card -->
+                    <div id="feedbackBox" class="hidden mb-4 p-4 rounded-xl flex items-center space-x-3 text-sm font-bold transition-all border">
+                        <!-- Managed via JS -->
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <button id="helpBtn" onclick="showExplanation()" class="text-gray-400 hover:text-white text-xs font-bold flex items-center space-x-2 py-2 px-3 hover:bg-white/5 rounded-xl transition-all">
+                            <i class="fa-regular fa-lightbulb text-yellow-400 text-sm"></i>
+                            <span>Need Hint &amp; Place Value Visual?</span>
+                        </button>
+                        
+                        <div class="flex space-x-3 w-full sm:w-auto justify-end">
+                            <button id="skipBtn" onclick="nextQuestion(true)" class="hidden border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all uppercase tracking-wider">
+                                Skip
+                            </button>
+                            <button id="submitBtn" onclick="checkCurrentAnswer()" class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-coral-neon text-white font-sporty tracking-wider px-8 py-3 rounded-xl text-sm font-black shadow-lg shadow-coral-neon/30 hover:shadow-coral-neon/50 hover:scale-[1.02] active:scale-95 transition-all">
+                                SUBMIT ANSWER <i class="fa-solid fa-circle-check ml-1.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Victory Arena Modal (Hidden initially) -->
+    <div id="finishModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card rounded-3xl p-8 max-w-lg w-full text-center relative overflow-hidden transform scale-95 transition-all duration-500 border border-white/20">
+            <!-- Confetti visual container -->
+            <div id="confettiContainer" class="absolute inset-0 pointer-events-none z-0"></div>
+
+            <div class="relative z-10">
+                <div class="w-24 h-24 bg-gradient-to-b from-amber-300 to-yellow-500 border-4 border-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(234,179,8,0.5)] animate-bounce">
+                    <i class="fa-solid fa-trophy text-white text-5xl"></i>
+                </div>
+                
+                <h2 class="font-sporty text-3xl md:text-4xl text-white tracking-wider mb-2">CHAMPIONSHIP VICTORY!</h2>
+                <p class="text-gray-300 text-sm md:text-base mb-6 leading-relaxed">
+                    With your accurate decimal calculations, Ingrid crossed the line at 13.9s and captured the gold!
+                </p>
+
+                <!-- Performance Stats Panel -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8 grid grid-cols-3 gap-3">
+                    <div>
+                        <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">XP Points</span>
+                        <span id="finalScore" class="text-xl font-black text-coral-neon font-sporty">0 XP</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Accuracy</span>
+                        <span id="finalAccuracy" class="text-xl font-black text-blue-neon font-sporty">100%</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Medal Rank</span>
+                        <span id="finalRank" class="text-xs font-black text-emerald-400 block truncate mt-1">Gold Trophy</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button onclick="restartGame()" class="w-full bg-gradient-to-r from-orange-500 to-coral-neon hover:shadow-[0_0_20px_rgba(255,107,74,0.6)] text-white font-sporty tracking-wider py-4 rounded-xl font-black transition-all">
+                        RUN AGAIN <i class="fa-solid fa-rotate-left ml-1.5"></i>
+                    </button>
+                    <p class="text-[10px] text-gray-500 font-semibold">References sourced directly from "image_60eb1f.png"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Explanations Modal -->
+    <div id="explanationModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl">
+            <div class="flex items-center space-x-2.5 text-blue-neon mb-4">
+                <i class="fa-solid fa-lightbulb text-2xl"></i>
+                <h3 class="font-sporty tracking-wider text-white text-md">ATHLETICS HINT &amp; TIPS</h3>
+            </div>
+            <div id="explanationContent" class="text-sm text-gray-300 leading-relaxed mb-6 space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                <!-- Dynamically updated -->
+            </div>
+            <button onclick="closeExplanation()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 rounded-xl transition-all">
+                Got It, Thanks!
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer Area -->
+    <footer class="border-t border-white/10 bg-[#07070a] py-6 text-xs text-gray-500">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3">
+            <p>© 2026 Decimal Athletics. Interactive Gamified Science and Mathematics Engine.</p>
+            <p class="font-bold text-coral-neon tracking-wider">Ref: image_60eb1f.png</p>
+        </div>
+    </footer>
+
+    <script>
+        // High fidelity audio synthesizers
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    // Ascending major chord fanfare
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+                    osc.start(now);
+                    osc.stop(now + 0.45);
+                } else if (type === 'wrong') {
+                    // Clean synthesized retro error buzz
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(233.08, now); // Bb3
+                    osc.frequency.setValueAtTime(196.00, now + 0.12); // G3 downslide
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'click') {
+                    // Tactile modern UI click pop
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(750, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                } else if (type === 'win') {
+                    // Magnificent final victory sweep
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.12);
+                    osc.frequency.setValueAtTime(783.99, now + 0.24);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.36);
+                    osc.frequency.setValueAtTime(1318.51, now + 0.48); // E6
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                    osc.start(now);
+                    osc.stop(now + 1.2);
+                }
+            } catch (err) {
+                console.warn("Audio initialization bypassed:", err);
+            }
+        }
+
+        function toggleSound() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            const label = document.querySelector('#soundToggle span');
+            if (audioEnabled) {
+                icon.className = "fa-solid fa-volume-high text-coral-neon";
+                label.innerText = "Sound: ON";
+                playSound('click');
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-gray-500";
+                label.innerText = "Sound: OFF";
+            }
+        }
+
+        // Fully localized English challenges derived precisely from 'image_60eb1f.png'
+        const questions = [
+            {
+                id: 1,
+                title: "CHALLENGE 1",
+                difficulty: "Easy",
+                xp: 150,
+                hint: "Analyze the place value of 87.655. The number contains 8 tens (80), 7 ones (7), then identify the tenths (1/10), hundredths (1/100), and thousandths (1/1000) slots.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-4">Complete the Place Value Expansion for:</h3>
+                    <div class="bg-white/5 border border-white/5 p-6 rounded-2xl flex flex-col items-center justify-center mb-6">
+                        <div class="text-xl md:text-2xl font-bold tracking-wide text-gray-300 flex flex-wrap items-center justify-center gap-3">
+                            <span class="text-white font-sporty">87.655</span>
+                            <span>=</span>
+                            <span>80</span>
+                            <span>+</span>
+                            <span>7</span>
+                            <span>+</span>
+                            
+                            <!-- Tenths -->
+                            <div class="relative">
+                                <input id="q1_blue" type="text" placeholder="Tenths" class="w-24 text-center py-2 px-1 bg-cyan-500/10 border-2 border-cyan-400 text-cyan-400 rounded-xl font-bold text-lg placeholder-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
+                                <span class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[9px] bg-cyan-400 text-black px-1.5 rounded-full font-extrabold uppercase">1/10</span>
+                            </div>
+                            <span>+</span>
+                            
+                            <!-- Hundredths -->
+                            <div class="relative">
+                                <input id="q1_teal" type="text" placeholder="Hund." class="w-24 text-center py-2 px-1 bg-teal-500/10 border-2 border-teal-400 text-teal-400 rounded-xl font-bold text-lg placeholder-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-400 transition" />
+                                <span class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[9px] bg-teal-400 text-black px-1.5 rounded-full font-extrabold uppercase">1/100</span>
+                            </div>
+                            <span>+</span>
+                            
+                            <!-- Thousandths -->
+                            <div class="relative">
+                                <input id="q1_green" type="text" placeholder="Thous." class="w-24 text-center py-2 px-1 bg-lime-500/10 border-2 border-lime-400 text-lime-400 rounded-xl font-bold text-lg placeholder-lime-500/50 focus:outline-none focus:ring-2 focus:ring-lime-400 transition" />
+                                <span class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[9px] bg-lime-400 text-black px-1.5 rounded-full font-extrabold uppercase">1/1000</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 italic text-center mt-6">Pro-tip: Input using decimal format (e.g., 0.6 or 0.05).</p>
+                `,
+                validate: () => {
+                    const b = document.getElementById('q1_blue').value.trim().replace(',', '.');
+                    const t = document.getElementById('q1_teal').value.trim().replace(',', '.');
+                    const g = document.getElementById('q1_green').value.trim().replace(',', '.');
+                    
+                    if (parseFloat(b) === 0.6 && parseFloat(t) === 0.05 && parseFloat(g) === 0.005) {
+                        return { correct: true, msg: "Outstanding! Your place value breakdown is exactly correct!" };
+                    }
+                    return { correct: false, msg: "Double check your slots! Think: 0.6 for tenths, 0.05 for hundredths, and 0.005 for thousandths." };
+                }
+            },
+            {
+                id: 2,
+                title: "CHALLENGE 2",
+                difficulty: "Medium",
+                xp: 200,
+                hint: "Count the number of highlighted small blocks inside the 100-grid block representing the hundredths.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-2">Decimal Grid Interpretation:</h3>
+                    <p class="text-sm text-gray-400 mb-6">What is the exact decimal value represented by the highlighted grid below?</p>
+                    
+                    <div class="flex flex-col md:flex-row items-center justify-around gap-6 mb-4">
+                        <!-- High visual 10x10 responsive grid -->
+                        <div class="grid grid-cols-10 gap-0.5 p-2 bg-[#1b1b2f] rounded-xl border-2 border-white/10 w-48 h-48 shadow-[0_0_20px_rgba(0,0,0,0.4)]">
+                            ${Array.from({ length: 100 }).map((_, i) => {
+                                const active = i < 37;
+                                return `<div class="w-full h-full rounded-sm transition-all duration-300 ${active ? 'bg-cyan-400 shadow-[0_0_3px_#00e5ff]' : 'bg-white/5'}"></div>`;
+                            }).join('')}
+                        </div>
+                        
+                        <!-- Core numerical interactive prompt -->
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Type Your Measurement</span>
+                            <div class="relative flex items-center">
+                                <input id="q2_answer" type="text" placeholder="0.00" class="w-36 text-center py-3 bg-[#151525] border-2 border-coral-neon rounded-xl font-sporty text-xl text-white focus:outline-none focus:ring-2 focus:ring-coral-neon transition-all shadow-[0_0_15px_rgba(255,107,74,0.15)]" />
+                            </div>
+                            <span class="text-[10px] text-gray-500 mt-2 text-center max-w-[200px]">Use modern decimal format (e.g., 0.37)</span>
+                        </div>
+                    </div>
+                `,
+                validate: () => {
+                    const ans = document.getElementById('q2_answer').value.trim().replace(',', '.');
+                    if (parseFloat(ans) === 0.37) {
+                        return { correct: true, msg: "Perfect! 37 small squares shaded out of 100 represents 0.37!" };
+                    }
+                    return { correct: false, msg: "Not quite. Look closely: 3 full rows (30 squares) and 7 extra squares are colored (37/100)." };
+                }
+            },
+            {
+                id: 3,
+                title: "CHALLENGE 3",
+                difficulty: "Medium",
+                xp: 200,
+                hint: "The value of 6 in 64.53 is 60 (tens). The value of 6 in 0.367 is 0.06 (hundredths). Divide 60 by 0.06 to find how many times larger it is.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-4">Digit Value Comparison:</h3>
+                    <p class="text-sm text-gray-400 mb-6 leading-relaxed">
+                        How many times larger is the value of digit <strong class="text-coral-neon text-lg">6</strong> in <strong class="text-white">64.53</strong> compared to digit <strong class="text-cyan-400 text-lg">6</strong> in <strong class="text-white">0.367</strong>?
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex flex-col items-center">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2">First Occurrence</span>
+                            <div class="text-lg font-bold text-gray-300">
+                                <span class="text-3xl font-black text-coral-neon">6</span>4.53
+                            </div>
+                            <span class="text-[10px] font-bold bg-coral-neon/20 text-coral-neon px-3 py-1 rounded-full mt-3">Value = 60 (Tens)</span>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex flex-col items-center">
+                            <span class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2">Second Occurrence</span>
+                            <div class="text-lg font-bold text-gray-300">
+                                0.3<span class="text-3xl font-black text-cyan-400">6</span>7
+                            </div>
+                            <span class="text-[10px] font-bold bg-cyan-400/20 text-cyan-400 px-3 py-1 rounded-full mt-3">Value = 0.06 (Hundredths)</span>
+                        </div>
+                    </div>
+
+                    <!-- Multiple choice grid layout -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="q3_options">
+                        <button onclick="selectOption('q3', 10, this)" class="option-btn bg-white/5 border-2 border-white/5 hover:border-coral-neon/50 p-4 rounded-xl font-bold text-sm text-gray-300 transition-all flex justify-between items-center">
+                            <span>10 times larger</span>
+                            <i class="fa-regular fa-circle text-gray-500"></i>
+                        </button>
+                        <button onclick="selectOption('q3', 100, this)" class="option-btn bg-white/5 border-2 border-white/5 hover:border-coral-neon/50 p-4 rounded-xl font-bold text-sm text-gray-300 transition-all flex justify-between items-center">
+                            <span>100 times larger</span>
+                            <i class="fa-regular fa-circle text-gray-500"></i>
+                        </button>
+                        <button onclick="selectOption('q3', 1000, this)" class="option-btn bg-white/5 border-2 border-white/5 hover:border-coral-neon/50 p-4 rounded-xl font-bold text-sm text-gray-300 transition-all flex justify-between items-center">
+                            <span>1,000 times larger</span>
+                            <i class="fa-regular fa-circle text-gray-500"></i>
+                        </button>
+                        <button onclick="selectOption('q3', 10000, this)" class="option-btn bg-white/5 border-2 border-white/5 hover:border-coral-neon/50 p-4 rounded-xl font-bold text-sm text-gray-300 transition-all flex justify-between items-center">
+                            <span>10,000 times larger</span>
+                            <i class="fa-regular fa-circle text-gray-500"></i>
+                        </button>
+                    </div>
+                `,
+                selectedVal: null,
+                validate: function() {
+                    if (this.selectedVal === 1000) {
+                        return { correct: true, msg: "Sensational! 60 divided by 0.06 equals 1,000, which means it is exactly 1,000 times larger!" };
+                    }
+                    return { correct: false, msg: "Incorrect choice. To scale from 0.06 to 60, you must multiply by 1,000 (0.06 x 1,000 = 60)." };
+                }
+            },
+            {
+                id: 4,
+                title: "CHALLENGE 4",
+                difficulty: "Medium",
+                xp: 200,
+                hint: "For (a), 3.08 has 8 in the hundredths, so round up to 3.1. For (b), 9.55 is rounded to the nearest whole number (units). Since tenths is 5, round up to 10.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-4">Decimal Rounding Challenge:</h3>
+                    
+                    <div class="space-y-4 mb-4">
+                        <!-- Part a -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl">
+                            <label class="block text-sm font-bold text-gray-300 mb-2">a. What is <strong class="text-coral-neon">3.08</strong> rounded to the nearest tenth?</label>
+                            <div class="flex items-center space-x-3">
+                                <input id="q4_a" type="text" placeholder="Round value" class="w-full max-w-[200px] py-2 px-3 bg-[#151525] border border-white/10 rounded-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-coral-neon text-center" />
+                                <span class="text-xs text-gray-500">Target: 1 decimal place</span>
+                            </div>
+                        </div>
+
+                        <!-- Part b -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl">
+                            <label class="block text-sm font-bold text-gray-300 mb-2">b. What is <strong class="text-cyan-400">9.55</strong> rounded to the nearest whole number?</label>
+                            <div class="flex items-center space-x-3">
+                                <input id="q4_b" type="text" placeholder="Round value" class="w-full max-w-[200px] py-2 px-3 bg-[#151525] border border-white/10 rounded-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 text-center" />
+                                <span class="text-xs text-gray-500">Target: Integer unit</span>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                validate: () => {
+                    const ansA = document.getElementById('q4_a').value.trim().replace(',', '.');
+                    const ansB = document.getElementById('q4_b').value.trim().replace(',', '.');
+                    
+                    const correctA = parseFloat(ansA) === 3.1;
+                    const correctB = parseFloat(ansB) === 10;
+
+                    if (correctA && correctB) {
+                        return { correct: true, msg: "Splendid job! 3.08 rounds to 3.1, and 9.55 rounds to 10 perfectly!" };
+                    }
+                    if (correctA) {
+                        return { correct: false, msg: "Part (a) is correct (3.1). Check Part (b) again! 9.55 has 5 in its tenths, which forces it to round up to the nearest whole number." };
+                    }
+                    if (correctB) {
+                        return { correct: false, msg: "Part (b) is correct (10). Check Part (a) again! 3.08 has 8 in its hundredths, forcing it to round up to the nearest tenth." };
+                    }
+                    return { correct: false, msg: "Both answers need revision. Focus on the digit to the right of your target place value." };
+                }
+            },
+            {
+                id: 5,
+                title: "CHALLENGE 5",
+                difficulty: "Hard",
+                xp: 250,
+                hint: "Utilize shifting patterns of 10, 100, and 1,000. Multiplying shifts the decimal place to the right, and dividing shifts it to the left.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-4">Find the Missing Equations:</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <!-- Box a -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-black text-gray-500 uppercase">Equation a</span>
+                            <div class="flex items-center space-x-1.5">
+                                <input id="q5_a" type="text" placeholder="Value" class="w-16 text-center py-1.5 bg-cyan-400/15 border-2 border-cyan-400 text-cyan-400 rounded-lg font-bold text-sm" />
+                                <span class="text-sm font-semibold">× 0.9 = 9</span>
+                            </div>
+                        </div>
+
+                        <!-- Box b -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-black text-gray-500 uppercase">Equation b</span>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-sm font-semibold">705 ÷</span>
+                                <input id="q5_b" type="text" placeholder="Value" class="w-16 text-center py-1.5 bg-fuchsia-400/15 border-2 border-fuchsia-400 text-fuchsia-400 rounded-lg font-bold text-sm" />
+                                <span class="text-sm font-semibold">= 7.05</span>
+                            </div>
+                        </div>
+
+                        <!-- Box c -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-black text-gray-500 uppercase">Equation c</span>
+                            <div class="flex items-center space-x-1.5">
+                                <input id="q5_c" type="text" placeholder="Value" class="w-16 text-center py-1.5 bg-teal-400/15 border-2 border-teal-400 text-teal-400 rounded-lg font-bold text-sm" />
+                                <span class="text-sm font-semibold">× 0.16 = 160</span>
+                            </div>
+                        </div>
+
+                        <!-- Box d -->
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-black text-gray-500 uppercase">Equation d</span>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-sm font-semibold">34 ÷ 1000 =</span>
+                                <input id="q5_d" type="text" placeholder="Value" class="w-16 text-center py-1.5 bg-lime-400/15 border-2 border-lime-400 text-lime-400 rounded-lg font-bold text-sm" />
+                            </div>
+                        </div>
+                    </div>
+                `,
+                validate: () => {
+                    const a = document.getElementById('q5_a').value.trim().replace(',', '.');
+                    const b = document.getElementById('q5_b').value.trim().replace(',', '.');
+                    const c = document.getElementById('q5_c').value.trim().replace(',', '.');
+                    const d = document.getElementById('q5_d').value.trim().replace(',', '.');
+                    
+                    const checkA = parseFloat(a) === 10;
+                    const checkB = parseFloat(b) === 100;
+                    const checkC = parseFloat(c) === 1000;
+                    const checkD = parseFloat(d) === 0.034;
+
+                    if (checkA && checkB && checkC && checkD) {
+                        return { correct: true, msg: "Outstanding! All four operations solved perfectly!" };
+                    }
+                    
+                    let incorrect = [];
+                    if (!checkA) incorrect.push("a");
+                    if (!checkB) incorrect.push("b");
+                    if (!checkC) incorrect.push("c");
+                    if (!checkD) incorrect.push("d");
+
+                    return { 
+                        correct: false, 
+                        msg: `Check your calculation for section(s): ${incorrect.join(", ")}. Remember that powers of 10 shift the decimal dot!` 
+                    };
+                }
+            },
+            {
+                id: 6,
+                title: "CHALLENGE 6",
+                difficulty: "Expert",
+                xp: 300,
+                hint: "Ingrid's final displayed time was 13.9s when rounded to 1 decimal place. Any value from 13.85s up to 13.94s rounds to 13.9s. The question asks for the SLOWEST (maximum) possible time she could have recorded.",
+                html: `
+                    <h3 class="font-bold text-white text-lg mb-2">100m Championship Run Calculation:</h3>
+                    
+                    <div class="bg-white/5 border border-white/5 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-coral-neon/20 rounded-full flex items-center justify-center text-coral-neon shadow-[0_0_15px_rgba(255,107,74,0.3)] flex-shrink-0">
+                            <i class="fa-solid fa-stopwatch text-2xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            The commentator stated, "Ingrid won the 100m race in <strong class="text-coral-neon">13.9 seconds</strong>." Her time was originally measured to 2 decimal places. <strong class="text-white">What is the slowest (maximum) possible time she could have actually run?</strong>
+                        </p>
+                    </div>
+
+                    <!-- Glowing track-style slider ruler -->
+                    <div class="p-4 bg-white/5 border border-white/5 rounded-xl mb-4">
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Adjust Ruler to Select Time:</label>
+                        <div class="flex items-center space-x-4">
+                            <input type="range" id="q6_range" min="13.85" max="13.95" step="0.01" value="13.90" oninput="updateRangeVal(this.value)" class="flex-1 accent-coral-neon cursor-ew-resize" />
+                            <span id="range_display" class="w-24 text-center font-sporty text-lg font-black bg-coral-neon text-white px-3 py-1.5 rounded-xl shadow-lg">13.90s</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-500 font-bold mt-3">
+                            <span>13.85s (Fastest)</span>
+                            <span>13.90s</span>
+                            <span>13.95s (Rounds up to 14.0)</span>
+                        </div>
+                    </div>
+                `,
+                selectedVal: 13.90,
+                validate: function() {
+                    const val = parseFloat(this.selectedVal);
+                    if (val === 13.94) {
+                        return { correct: true, msg: "Magnificent! 13.94 seconds is the maximum time that still rounds down to 13.9 seconds!" };
+                    } else if (val === 13.85) {
+                        return { correct: false, msg: "Almost there! 13.85 seconds is the FASTEST (minimum) time that rounds up to 13.9. We want the SLOWEST (maximum) time." };
+                    }
+                    return { correct: false, msg: "Incorrect. The largest decimal value to 2 places that rounds to 13.9 is 13.94. (13.95 would round to 14.0)." };
+                }
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let combo = 0;
+        let lives = 3;
+        let incorrectAttempts = 0;
+        let totalQuestionsAnswered = 0;
+        let totalCorrectFirstTry = 0;
+
+        // Initialize Workspace on Page Load
+        window.onload = function() {
+            loadQuestion(currentQuestionIdx);
+            updateRunnerPosition();
+        }
+
+        function loadQuestion(idx) {
+            if (idx >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const q = questions[idx];
+            document.getElementById('questionNumBadge').innerText = q.title;
+            document.getElementById('questionDifficulty').innerText = q.difficulty;
+            
+            const diffTag = document.getElementById('questionDifficulty');
+            if (q.difficulty === "Easy") {
+                diffTag.className = "text-xs font-extrabold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1 rounded-lg uppercase tracking-wider";
+            } else if (q.difficulty === "Medium") {
+                diffTag.className = "text-xs font-extrabold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-lg uppercase tracking-wider";
+            } else if (q.difficulty === "Hard") {
+                diffTag.className = "text-xs font-extrabold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-lg uppercase tracking-wider";
+            } else {
+                diffTag.className = "text-xs font-extrabold text-red-400 bg-red-400/10 border border-red-400/20 px-3 py-1 rounded-lg uppercase tracking-wider";
+            }
+
+            // Load Content
+            document.getElementById('questionContainer').innerHTML = q.html;
+            
+            // Clean active states and feedbacks
+            const feedbackBox = document.getElementById('feedbackBox');
+            feedbackBox.className = "hidden";
+            feedbackBox.innerHTML = "";
+
+            q.selectedVal = null; // Clear selections if MCQ
+
+            // Reset action buttons
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = `SUBMIT ANSWER <i class="fa-solid fa-circle-check ml-1.5"></i>`;
+            submitBtn.onclick = checkCurrentAnswer;
+        }
+
+        function selectOption(qType, val, elem) {
+            playSound('click');
+            const parent = elem.parentElement;
+            
+            parent.querySelectorAll('.option-btn').forEach(btn => {
+                btn.className = "option-btn bg-white/5 border-2 border-white/5 hover:border-coral-neon/50 p-4 rounded-xl font-bold text-sm text-gray-300 transition-all flex justify-between items-center";
+                btn.querySelector('i').className = "fa-regular fa-circle text-gray-500";
+            });
+
+            // Highlight selected
+            elem.className = "option-btn bg-coral-neon/15 border-2 border-coral-neon p-4 rounded-xl font-bold text-sm text-coral-neon transition-all flex justify-between items-center shadow-[0_0_15px_rgba(255,107,74,0.15)]";
+            elem.querySelector('i').className = "fa-solid fa-circle-dot text-coral-neon";
+
+            if (qType === 'q3') {
+                questions[2].selectedVal = val;
+            }
+        }
+
+        function updateRangeVal(val) {
+            playSound('click');
+            document.getElementById('range_display').innerText = parseFloat(val).toFixed(2) + "s";
+            questions[5].selectedVal = parseFloat(val).toFixed(2);
+        }
+
+        function checkCurrentAnswer() {
+            const q = questions[currentQuestionIdx];
+            const result = q.validate();
+            const feedbackBox = document.getElementById('feedbackBox');
+
+            feedbackBox.className = "mb-4 p-4 rounded-xl flex items-center space-x-3 text-sm font-bold border transition-all";
+
+            if (result.correct) {
+                // Correct Pathway
+                playSound('correct');
+                feedbackBox.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/20');
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i> <span>${result.msg}</span>`;
+                
+                // Score updates
+                combo++;
+                const bonus = (combo > 1) ? (combo - 1) * 20 : 0;
+                score += q.xp + bonus;
+
+                if (incorrectAttempts === 0) {
+                    totalCorrectFirstTry++;
+                }
+
+                // UI Updates
+                document.getElementById('scoreText').innerText = score + " XP";
+                document.getElementById('comboCounter').innerText = combo;
+
+                // Spawn score bursts
+                spawnSparks(document.getElementById('submitBtn'));
+
+                // Advancing level
+                currentQuestionIdx++;
+                updateRunnerPosition();
+
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.innerHTML = `NEXT LEVEL <i class="fa-solid fa-circle-arrow-right ml-1.5"></i>`;
+                submitBtn.onclick = () => {
+                    playSound('click');
+                    incorrectAttempts = 0;
+                    loadQuestion(currentQuestionIdx);
+                };
+
+            } else {
+                // Mistake Pathway
+                playSound('wrong');
+                feedbackBox.classList.add('bg-red-500/10', 'text-red-400', 'border-red-500/20');
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl animate-bounce"></i> <span>${result.msg}</span>`;
+                
+                incorrectAttempts++;
+                combo = 0;
+                document.getElementById('comboCounter').innerText = combo;
+
+                deductHeart();
+            }
+
+            totalQuestionsAnswered++;
+            const accuracy = Math.round((totalCorrectFirstTry / Math.max(1, totalQuestionsAnswered)) * 100);
+            document.getElementById('accuracyText').innerText = accuracy + "%";
+        }
+
+        function deductHeart() {
+            lives--;
+            const container = document.getElementById('heartsContainer');
+            container.innerHTML = "";
+            for (let i = 0; i < 3; i++) {
+                if (i < lives) {
+                    container.innerHTML += `<i class="fa-solid fa-heart text-red-500 text-sm"></i>`;
+                } else {
+                    container.innerHTML += `<i class="fa-regular fa-heart text-gray-600 text-sm"></i>`;
+                }
+            }
+
+            if (lives <= 0) {
+                // Auto friendly recovery logic for classrooms
+                lives = 3;
+                setTimeout(() => {
+                    container.innerHTML = `
+                        <i class="fa-solid fa-heart text-red-500 text-sm animate-pulse"></i>
+                        <i class="fa-solid fa-heart text-red-500 text-sm animate-pulse"></i>
+                        <i class="fa-solid fa-heart text-red-500 text-sm animate-pulse"></i>
+                    `;
+                }, 600);
+            }
+        }
+
+        function updateRunnerPosition() {
+            const container = document.getElementById('runnerContainer');
+            const distanceText = document.getElementById('distanceText');
+            
+            const ratio = currentQuestionIdx / questions.length;
+            const leftOffset = 5 + (ratio * 80); // Bound inside tracks
+            container.style.left = leftOffset + "%";
+
+            const remaining = Math.round(100 - (ratio * 100));
+            distanceText.innerText = `TARGET: 100m • REMAINING: ${remaining}m`;
+        }
+
+        function spawnSparks(element) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < 15; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'spark bg-coral-neon shadow-[0_0_8px_#ff6b4a]';
+                spark.style.left = (rect.left + rect.width / 2) + 'px';
+                spark.style.top = (rect.top + window.scrollY) + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 20 + Math.random() * 60;
+                spark.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
+                spark.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
+                
+                document.body.appendChild(spark);
+                setTimeout(() => spark.remove(), 800);
+            }
+        }
+
+        function showExplanation() {
+            playSound('click');
+            const q = questions[currentQuestionIdx];
+            document.getElementById('explanationContent').innerHTML = `<p>${q.hint}</p>`;
+            document.getElementById('explanationModal').classList.remove('hidden');
+        }
+
+        function closeExplanation() {
+            playSound('click');
+            document.getElementById('explanationModal').classList.add('hidden');
+        }
+
+        function nextQuestion(skip = false) {
+            playSound('click');
+            if (skip) {
+                currentQuestionIdx++;
+                updateRunnerPosition();
+                loadQuestion(currentQuestionIdx);
+            }
+        }
+
+        function endGame() {
+            playSound('win');
+            document.getElementById('finalScore').innerText = score + " XP";
+            const accuracy = Math.round((totalCorrectFirstTry / Math.max(1, totalQuestionsAnswered)) * 100);
+            document.getElementById('finalAccuracy').innerText = accuracy + "%";
+
+            let rank = "Gold Medalist 🥇";
+            if (accuracy < 65) rank = "Bronze Runner 🥉";
+            else if (accuracy < 85) rank = "Silver Medalist 🥈";
+            document.getElementById('finalRank').innerText = rank;
+
+            document.getElementById('finishModal').classList.remove('hidden');
+            triggerConfetti();
+        }
+
+        function triggerConfetti() {
+            const container = document.getElementById('confettiContainer');
+            container.innerHTML = "";
+            const colors = ['#00E5FF', '#00ECC6', '#A4E031', '#FF6B4A', '#FFD700'];
+            
+            for (let i = 0; i < 75; i++) {
+                const conf = document.createElement('div');
+                conf.className = "confetti";
+                conf.style.left = Math.random() * 100 + "%";
+                conf.style.top = -10 - (Math.random() * 20) + "px";
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDelay = Math.random() * 2.5 + "s";
+                conf.style.transform = `scale(${0.6 + Math.random() * 1.2})`;
+                container.appendChild(conf);
+            }
+        }
+
+        function restartGame() {
+            playSound('click');
+            currentQuestionIdx = 0;
+            score = 0;
+            combo = 0;
+            lives = 3;
+            incorrectAttempts = 0;
+            totalQuestionsAnswered = 0;
+            totalCorrectFirstTry = 0;
+
+            document.getElementById('scoreText').innerText = "0 XP";
+            document.getElementById('comboCounter').innerText = "0";
+            document.getElementById('accuracyText').innerText = "100%";
+            
+            const container = document.getElementById('heartsContainer');
+            container.innerHTML = `
+                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+                <i class="fa-solid fa-heart text-red-500 text-sm"></i>
+            `;
+
+            document.getElementById('finishModal').classList.add('hidden');
+            loadQuestion(0);
+            updateRunnerPosition();
+        }
+    </script>
+</body>
+</html>
